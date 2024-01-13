@@ -43,7 +43,7 @@ namespace Products.Service
             var result = cmd.ExecuteScalar().ToString();
             
 
-
+            // Returns the result, if the result is null it will return null
             return result!;
             
             
@@ -52,19 +52,27 @@ namespace Products.Service
 
         public IEnumerable<ProductEntity> GetAllProducts()
         {
+
+            // Creates a list of products
             var products = new List<ProductEntity>();
 
+            // Opens the connection to the database
             using var conn = new SqlConnection(_connectionString);
             conn.Open();
 
+            // Gets all the products from the database
             using var cmd = new SqlCommand("SELECT * FROM Products", conn);
 
+            // Reads the data from the database
             using var reader = cmd.ExecuteReader();
 
+            //While there is data to read, this code will run
             while (reader.Read())
             {
+                // Adds the data to the list of products
               products.Add(new ProductEntity()
               {
+                  // Gets the data from the database and adds it to the list of products
                   ArticleNumber = reader.GetString(0),
                   Title = reader.GetString(1),
                   Description = reader.IsDBNull(2) ? null : reader.GetString(2),
@@ -73,6 +81,51 @@ namespace Products.Service
             }
 
             return products;
+        }
+
+        public ProductEntity GetOneProduct(string articleNumber)
+        {
+            // Creates a list of products
+            var productEntity = new ProductEntity();
+
+            // Opens the connection to the database
+            using var conn = new SqlConnection(_connectionString);
+            conn.Open();
+
+            // Gets all the products from the database
+            using var cmd = new SqlCommand("IF EXISTS (SELECT 1 FROM Products WHERE ArticleNumber = @ArticleNumber) SELECT * FROM Products WHERE ArticleNumber = @ArticleNumber ELSE SELECT 'Product does not exist exists' AS Message \r\n", conn);
+
+            // Adds the parameter to the SQL-code
+            cmd.Parameters.AddWithValue("@ArticleNumber", articleNumber);
+
+            // Reads the data from the database
+            using var reader = cmd.ExecuteReader();
+
+            //While there is data to read, this code will run
+            while (reader.Read())
+            {
+                if (reader.GetString(0) == "Product does not exist exists")
+                {
+                    return null!;
+                }
+                else
+                {
+                    // Adds data to the variabel productEntity
+                    productEntity = new ProductEntity()
+                    {
+                        // Gets the data from the database and adds it to the list of products
+                        ArticleNumber = reader.GetString(0),
+                        Title = reader.GetString(1),
+                        Description = reader.IsDBNull(2) ? null : reader.GetString(2),
+                        Price = reader.GetDecimal(3)
+                    };
+                }
+
+                
+             
+            }
+
+            return productEntity;
         }
     }
 }

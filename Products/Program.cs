@@ -16,15 +16,35 @@ var productEntity = new ProductEntity()
 //Add the product to the database
 var result = productService.AddProduct(productEntity);
 //Prints the result
+Console.ForegroundColor = ConsoleColor.Green;
+Console.WriteLine("--- SHOWS RESULT OF ADD ---");
+Console.ResetColor();
 Console.WriteLine(result);
 
+Console.ForegroundColor = ConsoleColor.Green;
+Console.WriteLine("\n--- SHOWS ALL PRODUCTS ---");
+Console.ResetColor();
 foreach (var product in productService.GetAllProducts())
 {
-    Console.WriteLine(product.ArticleNumber);
-    Console.WriteLine(product.Title);
-    Console.WriteLine(product.Description);
-    Console.WriteLine(product.Price);
-    Console.WriteLine();
+    Console.WriteLine($"{product.ArticleNumber}, {product.Title}, {product.Description}, {product.Price}\n ");
+
+    
 }
+
+//Prints the result of getting one product
+Console.ForegroundColor = ConsoleColor.Green;
+Console.WriteLine("\n--- SHOWS ONE PRODUCT ---");
+Console.ResetColor();
+var oneProduct = productService.GetOneProduct("A1");
+
+//If the product does not exist, this code will run
+if (oneProduct == null)
+{
+    Console.WriteLine("Product does not exist");
+}
+//If the product does exist, this code will run
+else
+    Console.WriteLine($"{oneProduct.ArticleNumber}, {oneProduct.Title}, {oneProduct.Description}, {oneProduct.Price}");
+
 
 Console.ReadKey();
